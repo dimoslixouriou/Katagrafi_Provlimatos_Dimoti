@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,7 +24,7 @@
       font-size: 1.1em;
       color: #333;
     }
-    #map { height: calc(100vh - 120px); }
+    #map { height: calc(100vh - 120px); transition: height 0.3s ease; }
 
     .leaflet-popup-content button {
       background-color: #0078D7;
@@ -39,25 +40,6 @@
       background-color: #005bb5;
     }
 
-    #locate-btn {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-      background-color: white;
-      border: 2px solid #0078D7;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2em;
-      color: #0078D7;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -69,12 +51,11 @@
   <h2>Καλώς ήρθατε στην πλατφόρμα Καταγραφής Προβλημάτων του Δήμου Ληξουρίου</h2>
   <p>Πατήστε στο χάρτη για να εντοπίσετε πρόβλημα και να συμπληρώσετε τη φόρμα</p>
 </div>
-<button id="locate-btn" onclick="locateUser()" title="Εντοπισμός θέσης">📍</button>
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script>
-  const map = L.map('map').setView([38.1811, 20.4890], 12); // Κεφαλονιά
+  const map = L.map('map').setView([38.2043, 20.4363], 16);  // Εστίαση στο Ληξούρι
 
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
@@ -120,25 +101,18 @@
       "&entry.999647886=" + lng;
 
     currentMarker.bindPopup(`<b>Θέση επιλέχθηκε</b><br>
-      <button onclick=\"window.location.href='${formUrl}'\">Συμπλήρωσε τη φόρμα</button>`);
+      <button onclick="window.location.href='${formUrl}'">Συμπλήρωσε τη φόρμα</button>`);
   }
 
-  function locateUser() {
-    map.locate({ setView: true, maxZoom: 17 });
-  }
-
-  function onLocationFound(e) {
+  map.on('locationfound', function(e) {
     const lat = e.latlng.lat.toFixed(6);
     const lng = e.latlng.lng.toFixed(6);
     placeOrMoveMarker(lat, lng);
-  }
+  });
 
-  function onLocationError(e) {
+  map.on('locationerror', function(e) {
     alert("Σφάλμα εντοπισμού θέσης: " + e.message);
-  }
-
-  map.on('locationfound', onLocationFound);
-  map.on('locationerror', onLocationError);
+  });
 
   map.on('click', function(e) {
     const lat = e.latlng.lat.toFixed(6);
@@ -148,8 +122,17 @@
 
   map.on('zoomstart', function() {
     const instructions = document.getElementById('instructions');
-    if (instructions) instructions.style.display = 'none';
+    if (instructions) {
+      instructions.style.display = 'none';
+      document.getElementById('map').style.height = '100vh';
+      map.invalidateSize();
+    }
   });
+
+  // καθυστέρηση για να σιγουρευτούμε ότι έγινε πλήρες render
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 800);
 </script>
 </body>
 </html>
