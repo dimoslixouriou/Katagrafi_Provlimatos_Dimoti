@@ -41,6 +41,17 @@
       background-color: #005bb5;
     }
 
+    .leaflet-control-locate {
+      margin-bottom: 70px !important; /* ανύψωση κουμπιού */
+    }
+
+    .leaflet-control-locate .leaflet-control-locate-location-arrow {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Google_Nearby_Icon.svg/1024px-Google_Nearby_Icon.svg.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -57,7 +68,7 @@
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 <script>
-  const map = L.map('map').setView([38.2043, 20.4363], 12); // Zoomed out 4 steps
+  const map = L.map('map').setView([38.2043, 20.4363], 12);
 
   const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
@@ -125,7 +136,7 @@
     map.invalidateSize();
   }, 800);
 
-  // Εμφάνιση κουμπιού εντοπισμού τοποθεσίας κάτω δεξιά
+  // Προσθήκη locate control με custom θέση και εικονίδιο
   L.control.locate({
     position: 'bottomright',
     strings: {
@@ -133,7 +144,7 @@
     },
     flyTo: true,
     keepCurrentZoomLevel: false,
-    icon: 'fa-location-arrow'
+    icon: 'leaflet-control-locate-location-arrow'
   }).addTo(map);
 </script>
 </body>
