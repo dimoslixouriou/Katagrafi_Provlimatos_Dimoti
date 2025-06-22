@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Χάρτης Καταγραφής Προβλήματος</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f9f9f9; }
+    #instructions {
+      padding: 1.5em;
+      background-color: #e6f2ff;
+      text-align: center;
+      animation: fadeIn 1.2s ease-out;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #instructions h2 {
+      margin-bottom: 0.5em;
+      color: #004080;
+    }
+    #instructions p {
+      margin-bottom: 0;
+      font-size: 1.1em;
+      color: #333;
+    }
+    #map { height: calc(100vh - 120px); }
+
+    .leaflet-popup-content button {
+      background-color: #0078D7;
+      color: white;
+      border: none;
+      padding: 0.5em 1em;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .leaflet-popup-content button:hover {
+      background-color: #005bb5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div id="instructions">
+  <h2>Καλώς ήρθατε στην πλατφόρμα Καταγραφής Προβλημάτων του Δήμου Ληξουρίου</h2>
+  <p>Πατήστε στο χάρτη για να εντοπίσετε πρόβλημα και να συμπληρώσετε τη φόρμα</p>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').fitWorld();
+
+  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  });
+
+  const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles © Esri'
+  });
+
+  const hybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    attribution: '© Google'
+  });
+
+  const baseMaps = {
+    "OpenStreetMap": osm,
+    "Satellite": satellite,
+    "Hybrid": hybrid
+  };
+
+  osm.addTo(map);
+  L.control.layers(baseMaps).addTo(map);
+
+  let currentMarker = null;
+
+  function placeOrMoveMarker(lat, lng) {
+    if (currentMarker) {
+      currentMarker.setLatLng([lat, lng]);
+    } else {
+      currentMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+      currentMarker.on('dragend', function (e) {
+        const newLatLng = e.target.getLatLng();
+        updatePopup(newLatLng.lat.toFixed(6), newLatLng.lng.toFixed(6));
+      });
+    }
+    updatePopup(lat, lng);
+    currentMarker.openPopup();
+  }
+
+  function updatePopup(lat, lng) {
+    const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLScO1k6VyrhxtJMTsvDuoGs50KjSugZUw7_eTH3uFsnw_Slm3w/viewform" +
+      "?usp=pp_url" +
+      "&entry.1361643033=" + lat +
+      "&entry.999647886=" + lng;
+
+    currentMarker.bindPopup(`<b>Θέση επιλέχθηκε</b><br>
+      <button onclick=\"window.location.href='${formUrl}'\">Συμπλήρωσε τη φόρμα</button>`);
+  }
+
+  function onLocationFound(e) {
+    const lat = e.latlng.lat.toFixed(6);
+    const lng = e.latlng.lng.toFixed(6);
+    placeOrMoveMarker(lat, lng);
+  }
+
+  function onLocationError(e) {
+    alert("Σφάλμα εντοπισμού θέσης: " + e.message);
+  }
+
+  map.on('locationfound', onLocationFound);
+  map.on('locationerror', onLocationError);
+
+  map.on('click', function(e) {
+    const lat = e.latlng.lat.toFixed(6);
+    const lng = e.latlng.lng.toFixed(6);
+    placeOrMoveMarker(lat, lng);
+  });
+
+  map.on('zoomstart', function() {
+    const instructions = document.getElementById('instructions');
+    if (instructions) instructions.style.display = 'none';
+  });
+
+  map.locate({ setView: true, maxZoom: 17 });
+</script>
+</body>
+</html>
