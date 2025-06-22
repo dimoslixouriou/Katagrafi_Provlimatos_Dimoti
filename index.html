@@ -6,14 +6,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <style>
-    body { margin: 0; font-family: sans-serif; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f9f9f9; }
     #instructions {
-      padding: 1em;
-      background-color: #f2f2f2;
+      padding: 1.5em;
+      background-color: #e6f2ff;
       text-align: center;
       animation: fadeIn 1.2s ease-out;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    #map { height: calc(100vh - 100px); }
+    #instructions h2 {
+      margin-bottom: 0.5em;
+      color: #004080;
+    }
+    #instructions p {
+      margin-bottom: 0;
+      font-size: 1.1em;
+      color: #333;
+    }
+    #map { height: calc(100vh - 120px); }
+
+    .leaflet-popup-content button {
+      background-color: #0078D7;
+      color: white;
+      border: none;
+      padding: 0.5em 1em;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .leaflet-popup-content button:hover {
+      background-color: #005bb5;
+    }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
@@ -24,7 +48,7 @@
 <body>
 <div id="instructions">
   <h2>Καλώς ήρθατε στην πλατφόρμα Καταγραφής Προβλημάτων του Δήμου Ληξουρίου</h2>
-  <p>Πλοηγηθείτε στο χάρτη ή επιτρέψτε την κοινοποίηση της τοποθεσίας σας για να εισάγετε νέα καταγραφή</p>
+  <p>Πατήστε στο χάρτη για να εντοπίσετε πρόβλημα και να συμπληρώσετε τη φόρμα</p>
 </div>
 <div id="map"></div>
 
@@ -76,7 +100,7 @@
       "&entry.999647886=" + lng;
 
     currentMarker.bindPopup(`<b>Θέση επιλέχθηκε</b><br>
-      <button onclick="window.location.href='${formUrl}'">Συμπλήρωσε τη φόρμα</button>`);
+      <button onclick=\"window.location.href='${formUrl}'\">Συμπλήρωσε τη φόρμα</button>`);
   }
 
   function onLocationFound(e) {
